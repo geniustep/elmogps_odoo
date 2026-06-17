@@ -162,6 +162,7 @@ class StockLot(models.Model):
         }
 
     def action_return_to_stock(self):
+        builder = self.env["elmogps.integration.payload.builder"]
         for lot in self:
             lot.write(
                 {
@@ -171,8 +172,14 @@ class StockLot(models.Model):
                     "elmogps_active_gps_lot_id": False,
                 }
             )
+            if lot.elmogps_asset_type == "gps_device":
+                payload = builder.build_device_released_payload(lot)
+                event_type = "device.released"
+            elif lot.elmogps_asset_type == "sim_card":
+                payload = builder.build_sim_released_payload(lot)
+                event_type = "sim.released"
+            else:
+                continue
             self.env["elmogps.integration.event"].sudo().create_event(
-                "device.released" if lot.elmogps_asset_type == "gps_device" else "sim.released",
-                lot,
-                self.env["elmogps.integration.payload.builder"].build_lot_payload(lot),
+                event_type, lot, payload
             )

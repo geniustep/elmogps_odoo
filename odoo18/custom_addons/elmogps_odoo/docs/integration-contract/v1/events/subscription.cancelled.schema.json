@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elmogps.local/integration-contract/v1/events/subscription.cancelled.schema.json",
+  "title": "ELMOGPS Event Payload \u2014 subscription.cancelled",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "odoo_contract_id",
+    "odoo_partner_id",
+    "status",
+    "vehicle_limit",
+    "starts_at",
+    "ends_at",
+    "auto_renew",
+    "enabled_features"
+  ],
+  "properties": {
+    "odoo_contract_id": {
+      "type": "integer"
+    },
+    "odoo_partner_id": {
+      "type": "integer"
+    },
+    "elmogps_tenant_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "status": {
+      "enum": [
+        "trial",
+        "active",
+        "suspended",
+        "expired",
+        "cancelled"
+      ]
+    },
+    "vehicle_limit": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "enabled_features": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "starts_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "ends_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "grace_ends_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "auto_renew": {
+      "type": "boolean"
+    }
+  }
+}

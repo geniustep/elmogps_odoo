@@ -1,7 +1,13 @@
-import hashlib
-import hmac
+import os
+import time
 
 from odoo import models
+
+from .integration_contract import (
+    build_signature_headers,
+    sign_body,
+    validate_headers_match_body,
+)
 
 
 class ElmogpsWebhookSigner(models.AbstractModel):
@@ -10,8 +16,6 @@ class ElmogpsWebhookSigner(models.AbstractModel):
 
     def get_secret(self):
         icp = self.env["ir.config_parameter"].sudo()
-        import os
-
         return os.environ.get("ELMOGPS_ODOO_WEBHOOK_SECRET") or icp.get_param(
             "elmogps_odoo.webhook_secret"
         )
@@ -20,20 +24,26 @@ class ElmogpsWebhookSigner(models.AbstractModel):
         secret = secret or self.get_secret()
         if not secret:
             return None
-        message = f"{timestamp}.{raw_body}".encode("utf-8")
-        return hmac.new(secret.encode("utf-8"), message, hashlib.sha256).hexdigest()
+        return sign_body(timestamp, raw_body, secret)
 
-    def build_headers(self, event_id, event_version, raw_body, timestamp=None):
-        import time
-
+    def build_headers(self, event_id, event_type, event_version, raw_body, timestamp=None):
         timestamp = timestamp or str(int(time.time()))
-        signature = self.sign(timestamp, raw_body)
-        headers = {
-            "Content-Type": "application/json",
-            "X-ELMOGPS-Event-Id": event_id,
-            "X-ELMOGPS-Timestamp": timestamp,
-            "X-ELMOGPS-Event-Version": str(event_version),
-        }
-        if signature:
-            headers["X-ELMOGPS-Signature"] = signature
-        return headers
+        secret = self.get_secret()
+        if not secret:
+            return {
+                "Content-Type": "application/json",
+                "User-Agent": "elmogps-odoo/18.0",
+                "X-ELMOGPS-Event-Id": event_id,
+                "X-ELMOGPS-Event-Type": event_type,
+                "X-ELMOGPS-Event-Version": str(event_version),
+                "X-ELMOGPS-Timestamp": timestamp,
+            }
+        return build_signature_headers(
+            event_id, event_type, event_version, raw_body, timestamp, secret
+        )
+
+    def validate_headers_match_body(self, headers, raw_body):
+        import json
+
+        envelope = json.loads(raw_body)
+        return validate_headers_match_body(headers, envelope)

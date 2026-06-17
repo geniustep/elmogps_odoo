@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elmogps.local/integration-contract/v1/events/customer.updated.schema.json",
+  "title": "ELMOGPS Event Payload \u2014 customer.updated",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "odoo_partner_id",
+    "name",
+    "status",
+    "vehicle_limit"
+  ],
+  "properties": {
+    "odoo_partner_id": {
+      "type": "integer"
+    },
+    "customer_code": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "vehicle_limit": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "email": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "email"
+    },
+    "phone": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "country_code": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "timezone": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "language": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "elmogps_tenant_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "description": "ELMOGPS Odoo Integration Contract v1 \u2014 HMAC test vector",
+  "algorithm": "HMAC-SHA256",
+  "string_to_sign": "timestamp + '.' + raw_body",
+  "signature_header_format": "sha256=<lowercase_hex>",
+  "test_secret": "test-secret-not-for-production",
+  "timestamp": "1718625600",
+  "raw_body": "{\"event_id\":\"550e8400-e29b-41d4-a716-446655440000\",\"event_type\":\"installation.completed\",\"event_version\":1,\"occurred_at\":\"2026-06-17T12:00:00Z\",\"odoo_company_id\":1,\"payload\":{\"odoo_installation_id\":78}}",
+  "expected_signature": "sha256=de584da0d71b6380f6a7f3bd8f93f26ab70e61416a7ef7ed672c7e4a05716b0f",
+  "json_serialization": {
+    "sort_keys": true,
+    "separators": [
+      ",",
+      ":"
+    ],
+    "ensure_ascii": false,
+    "pretty_print": false
+  }
+}

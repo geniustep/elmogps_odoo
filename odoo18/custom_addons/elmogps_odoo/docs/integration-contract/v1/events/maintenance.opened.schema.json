@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elmogps.local/integration-contract/v1/events/maintenance.opened.schema.json",
+  "title": "ELMOGPS Event Payload \u2014 maintenance.opened",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "odoo_maintenance_id",
+    "issue_type",
+    "opened_at",
+    "warranty_case"
+  ],
+  "properties": {
+    "odoo_maintenance_id": {
+      "type": "integer"
+    },
+    "odoo_partner_id": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "odoo_installation_id": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "odoo_stock_lot_id": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "elmogps_tenant_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "elmogps_device_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "issue_type": {
+      "type": "string"
+    },
+    "opened_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "warranty_case": {
+      "type": "boolean"
+    }
+  }
+}

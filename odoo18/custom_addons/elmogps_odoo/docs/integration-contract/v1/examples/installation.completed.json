@@ -1,0 +1,40 @@
+{
+  "event_id": "550e8400-e29b-41d4-a716-446655440000",
+  "event_type": "installation.completed",
+  "event_version": 1,
+  "occurred_at": "2026-06-17T12:00:00Z",
+  "source": "odoo",
+  "odoo_company_id": 1,
+  "payload": {
+    "odoo_installation_id": 78,
+    "odoo_partner_id": 123,
+    "odoo_contract_id": 45,
+    "elmogps_tenant_id": null,
+    "installation_type": "new_installation",
+    "completed_at": "2026-06-17T12:00:00Z",
+    "vehicle": {
+      "odoo_vehicle_reference_id": 55,
+      "elmogps_vehicle_id": null,
+      "plate_number": "12345-A-1",
+      "vin": null,
+      "brand": "Renault",
+      "model": "Master",
+      "model_year": 2024,
+      "vehicle_type": "van"
+    },
+    "device": {
+      "odoo_stock_lot_id": 99,
+      "elmogps_device_id": null,
+      "imei": "356789012345679",
+      "device_model": "MODEL-CODE",
+      "traccar_device_id": null
+    },
+    "sim": {
+      "odoo_sim_lot_id": 100,
+      "iccid": "89014103211118510888",
+      "phone_number": "+212600000000",
+      "operator_code": "operator-code"
+    },
+    "odoo_technician_user_id": 2
+  }
+}

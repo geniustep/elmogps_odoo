@@ -91,8 +91,9 @@ class ResPartner(models.Model):
                 raise ValidationError(_("ELMOGPS Tenant ID must be unique."))
 
     def action_activate_elmogps_customer(self):
+        builder = self.env["elmogps.integration.payload.builder"]
         for partner in self:
-            partner.write(
+            partner.with_context(elmogps_skip_customer_updated_event=True).write(
                 {
                     "is_elmogps_customer": True,
                     "elmogps_service_status": "active",
@@ -103,10 +104,11 @@ class ResPartner(models.Model):
             self.env["elmogps.integration.event"].sudo().create_event(
                 "customer.activated",
                 partner,
-                self.env["elmogps.integration.payload.builder"].build_customer_payload(partner),
+                builder.build_customer_activated_payload(partner),
             )
 
     def action_suspend_elmogps_customer(self):
+        builder = self.env["elmogps.integration.payload.builder"]
         for partner in self:
             partner.write(
                 {
@@ -117,7 +119,7 @@ class ResPartner(models.Model):
             self.env["elmogps.integration.event"].sudo().create_event(
                 "customer.suspended",
                 partner,
-                self.env["elmogps.integration.payload.builder"].build_customer_payload(partner),
+                builder.build_customer_suspended_payload(partner),
             )
 
     def action_view_elmogps_contracts(self):
@@ -176,14 +178,15 @@ class ResPartner(models.Model):
             "elmogps_tenant_id",
         }
         res = super().write(vals)
-        if track_fields.intersection(vals.keys()):
+        if track_fields.intersection(vals.keys()) and not self.env.context.get(
+            "elmogps_skip_customer_updated_event"
+        ):
+            builder = self.env["elmogps.integration.payload.builder"]
             for partner in self.filtered("is_elmogps_customer"):
                 if partner.elmogps_service_status == "active":
                     self.env["elmogps.integration.event"].sudo().create_event(
                         "customer.updated",
                         partner,
-                        self.env["elmogps.integration.payload.builder"].build_customer_payload(
-                            partner
-                        ),
+                        builder.build_customer_updated_payload(partner),
                     )
         return res

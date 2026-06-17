@@ -1,4 +1,5 @@
 import json
+import os
 from unittest.mock import patch
 
 import uuid
@@ -7,6 +8,11 @@ from psycopg2 import IntegrityError
 
 from odoo.tests import tagged
 
+from odoo.addons.elmogps_odoo.services.integration_contract import (
+    TEST_SECRET,
+    canonical_json_dumps,
+    sign_body,
+)
 from odoo.addons.elmogps_odoo.tests.common import ElmogpsTestCommon
 
 
@@ -50,12 +56,24 @@ class TestElmogpsOutbox(ElmogpsTestCommon):
 
     def test_hmac_signing(self):
         signer = self.env["elmogps.webhook.signer"]
-        with patch.dict("os.environ", {"ELMOGPS_ODOO_WEBHOOK_SECRET": "test-secret"}):
-            sig = signer.sign("1234567890", '{"a":1}', secret="test-secret")
+        with patch.dict("os.environ", {"ELMOGPS_ODOO_WEBHOOK_SECRET": TEST_SECRET}):
+            sig = signer.sign("1234567890", '{"a":1}', secret=TEST_SECRET)
+        self.assertTrue(sig.startswith("sha256="))
         self.assertEqual(
             sig,
-            signer.sign("1234567890", '{"a":1}', secret="test-secret"),
+            sign_body("1234567890", '{"a":1}', TEST_SECRET),
         )
+
+    def test_hmac_contract_test_vector(self):
+        module_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        vector_path = os.path.join(
+            module_root,
+            "docs/integration-contract/v1/test-vectors/hmac-sha256.json",
+        )
+        with open(vector_path, encoding="utf-8") as handle:
+            vector = json.load(handle)
+        signature = sign_body(vector["timestamp"], vector["raw_body"], vector["test_secret"])
+        self.assertEqual(signature, vector["expected_signature"])
 
     def test_disabled_integration_skips_send(self):
         self.env.company.elmogps_integration_enabled = False
@@ -65,7 +83,7 @@ class TestElmogpsOutbox(ElmogpsTestCommon):
                 "payload": '{"event_type":"customer.updated"}',
             }
         )
-        success, status, msg = self.env["elmogps.webhook.client"].send_event(event)
+        success, status, msg, _retry = self.env["elmogps.webhook.client"].send_event(event)
         self.assertFalse(success)
 
     @patch("odoo.addons.elmogps_odoo.services.webhook_client.requests.post")
@@ -81,7 +99,17 @@ class TestElmogpsOutbox(ElmogpsTestCommon):
         event = self.env["elmogps.integration.event"].create(
             {
                 "event_type": "customer.updated",
-                "payload": '{"event_type":"customer.updated","event_id":"x"}',
+                "payload": canonical_json_dumps(
+                    {
+                        "event_id": "x",
+                        "event_type": "customer.updated",
+                        "event_version": 1,
+                        "occurred_at": "2026-06-17T12:00:00Z",
+                        "source": "odoo",
+                        "odoo_company_id": self.env.company.id,
+                        "payload": {"odoo_partner_id": 1, "name": "A", "status": "active", "vehicle_limit": 1},
+                    }
+                ),
             }
         )
         self.env["elmogps.outbox.processor"]._process_single_event(

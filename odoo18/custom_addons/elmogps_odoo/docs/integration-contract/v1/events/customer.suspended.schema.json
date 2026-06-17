@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elmogps.local/integration-contract/v1/events/customer.suspended.schema.json",
+  "title": "ELMOGPS Event Payload \u2014 customer.suspended",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "odoo_partner_id",
+    "status",
+    "reason_code",
+    "effective_at"
+  ],
+  "properties": {
+    "odoo_partner_id": {
+      "type": "integer"
+    },
+    "elmogps_tenant_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "status": {
+      "const": "suspended"
+    },
+    "reason_code": {
+      "type": "string",
+      "enum": [
+        "payment_overdue",
+        "contract_expired",
+        "manual",
+        "fraud_review",
+        "customer_request",
+        "other"
+      ]
+    },
+    "effective_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

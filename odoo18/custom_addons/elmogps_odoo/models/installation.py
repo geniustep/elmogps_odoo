@@ -231,10 +231,11 @@ class ElmogpsInstallation(models.Model):
                         "elmogps_active_installation_id": inst.id,
                     }
                 )
+            builder = self.env["elmogps.integration.payload.builder"]
             self.env["elmogps.integration.event"].sudo().create_event(
                 "installation.completed",
                 inst,
-                self.env["elmogps.integration.payload.builder"].build_installation_payload(inst),
+                builder.build_installation_completed_payload(inst),
             )
 
     def action_remove(self):
@@ -263,10 +264,11 @@ class ElmogpsInstallation(models.Model):
                         "elmogps_active_installation_id": False,
                     }
                 )
+            builder = self.env["elmogps.integration.payload.builder"]
             self.env["elmogps.integration.event"].sudo().create_event(
                 "installation.removed",
                 inst,
-                self.env["elmogps.integration.payload.builder"].build_installation_payload(inst),
+                builder.build_installation_removed_payload(inst),
             )
 
     def action_cancel(self):

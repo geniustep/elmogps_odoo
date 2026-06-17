@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elmogps.local/integration-contract/v1/events/sim.allocated.schema.json",
+  "title": "ELMOGPS Event Payload \u2014 sim.allocated",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "odoo_sim_lot_id",
+    "iccid",
+    "status"
+  ],
+  "properties": {
+    "odoo_sim_lot_id": {
+      "type": "integer"
+    },
+    "odoo_partner_id": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "elmogps_tenant_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "iccid": {
+      "type": "string"
+    },
+    "phone_number": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "operator_code": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "apn": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "type": "string"
+    },
+    "odoo_contract_id": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  }
+}

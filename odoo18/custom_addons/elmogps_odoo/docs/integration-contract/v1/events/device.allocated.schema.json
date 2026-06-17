@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elmogps.local/integration-contract/v1/events/device.allocated.schema.json",
+  "title": "ELMOGPS Event Payload \u2014 device.allocated",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "odoo_stock_lot_id",
+    "imei",
+    "operational_status"
+  ],
+  "properties": {
+    "odoo_stock_lot_id": {
+      "type": "integer"
+    },
+    "odoo_partner_id": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "odoo_contract_id": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "elmogps_tenant_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "imei": {
+      "type": "string",
+      "pattern": "^\\d{15}$"
+    },
+    "serial_number": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "device_model": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "product_id": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "traccar_device_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "operational_status": {
+      "type": "string"
+    }
+  }
+}

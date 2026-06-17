@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elmogps.local/integration-contract/v1/events/maintenance.closed.schema.json",
+  "title": "ELMOGPS Event Payload \u2014 maintenance.closed",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "odoo_maintenance_id",
+    "status",
+    "resolution_code",
+    "closed_at"
+  ],
+  "properties": {
+    "odoo_maintenance_id": {
+      "type": "integer"
+    },
+    "odoo_stock_lot_id": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "elmogps_device_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "status": {
+      "const": "closed"
+    },
+    "resolution_code": {
+      "type": "string"
+    },
+    "closed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

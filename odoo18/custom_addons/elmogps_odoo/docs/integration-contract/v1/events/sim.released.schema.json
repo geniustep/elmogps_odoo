@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elmogps.local/integration-contract/v1/events/sim.released.schema.json",
+  "title": "ELMOGPS Event Payload \u2014 sim.released",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "odoo_sim_lot_id",
+    "iccid",
+    "released_at",
+    "reason_code"
+  ],
+  "properties": {
+    "odoo_sim_lot_id": {
+      "type": "integer"
+    },
+    "iccid": {
+      "type": "string"
+    },
+    "released_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reason_code": {
+      "type": "string"
+    }
+  }
+}

@@ -2,6 +2,12 @@ from datetime import timedelta
 
 from odoo import api, fields, models
 
+from .integration_contract import (
+    MAX_ATTEMPTS_DEFAULT,
+    classify_delivery_result,
+    next_retry_delay_seconds,
+)
+
 
 class ElmogpsOutboxProcessor(models.AbstractModel):
     _name = "elmogps.outbox.processor"
@@ -37,11 +43,12 @@ class ElmogpsOutboxProcessor(models.AbstractModel):
             return
         event.write({"status": "processing"})
 
-        success, status_code, message = client.send_event(event)
-        max_attempts = company.elmogps_webhook_max_attempts or 5
+        success, status_code, message, retry_after = client.send_event(event)
+        max_attempts = company.elmogps_webhook_max_attempts or MAX_ATTEMPTS_DEFAULT
         attempts = event.attempts + 1
+        delivered, retryable = classify_delivery_result(success, status_code)
 
-        if success and 200 <= status_code < 300:
+        if delivered:
             event.write(
                 {
                     "status": "sent",
@@ -49,6 +56,7 @@ class ElmogpsOutboxProcessor(models.AbstractModel):
                     "sent_at": fields.Datetime.now(),
                     "response_status": status_code,
                     "last_error": False,
+                    "next_retry_at": False,
                 }
             )
             self.env["elmogps.integration.log"].create(
@@ -60,27 +68,36 @@ class ElmogpsOutboxProcessor(models.AbstractModel):
                     "response_status": status_code,
                 }
             )
+            return
+
+        if not retryable:
+            new_status = "dead"
+            next_retry = False
+        elif attempts >= max_attempts:
+            new_status = "dead"
+            next_retry = False
         else:
-            if attempts >= max_attempts:
-                new_status = "dead"
-            else:
-                new_status = "failed"
-            retry_delay = min(300, 30 * (2 ** (attempts - 1)))
-            event.write(
-                {
-                    "status": new_status,
-                    "attempts": attempts,
-                    "next_retry_at": fields.Datetime.now() + timedelta(seconds=retry_delay),
-                    "response_status": status_code or 0,
-                    "last_error": message,
-                }
-            )
-            self.env["elmogps.integration.log"].create(
-                {
-                    "event_id": event.id,
-                    "company_id": company.id,
-                    "level": "error",
-                    "message": message or "Delivery failed",
-                    "response_status": status_code or 0,
-                }
-            )
+            new_status = "failed"
+            delay = next_retry_delay_seconds(attempts)
+            if retry_after and str(retry_after).isdigit():
+                delay = max(delay, int(retry_after))
+            next_retry = fields.Datetime.now() + timedelta(seconds=delay)
+
+        event.write(
+            {
+                "status": new_status,
+                "attempts": attempts,
+                "next_retry_at": next_retry,
+                "response_status": status_code or 0,
+                "last_error": message,
+            }
+        )
+        self.env["elmogps.integration.log"].create(
+            {
+                "event_id": event.id,
+                "company_id": company.id,
+                "level": "error",
+                "message": message or "Delivery failed",
+                "response_status": status_code or 0,
+            }
+        )

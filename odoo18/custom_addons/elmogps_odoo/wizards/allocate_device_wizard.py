@@ -29,9 +29,10 @@ class ElmogpsAllocateDeviceWizard(models.TransientModel):
                 "elmogps_customer_id": self.partner_id.id,
             }
         )
+        builder = self.env["elmogps.integration.payload.builder"]
         self.env["elmogps.integration.event"].sudo().create_event(
             event_type,
             self.lot_id,
-            self.env["elmogps.integration.payload.builder"].build_lot_payload(self.lot_id),
+            builder.build_lot_payload(self.lot_id, contract=self.contract_id),
         )
         return {"type": "ir.actions.act_window_close"}

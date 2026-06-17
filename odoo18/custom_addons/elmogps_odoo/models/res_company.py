@@ -10,7 +10,7 @@ class ResCompany(models.Model):
     )
     elmogps_api_base_url = fields.Char(string="ELMOGPS API Base URL")
     elmogps_webhook_timeout = fields.Integer(string="Webhook Timeout (seconds)", default=30)
-    elmogps_webhook_max_attempts = fields.Integer(string="Webhook Max Attempts", default=5)
+    elmogps_webhook_max_attempts = fields.Integer(string="Webhook Max Attempts", default=8)
     elmogps_webhook_replay_window = fields.Integer(
         string="Webhook Replay Window (seconds)", default=300
     )

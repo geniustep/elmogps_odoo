@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elmogps.local/integration-contract/v1/events/installation.removed.schema.json",
+  "title": "ELMOGPS Event Payload \u2014 installation.removed",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "odoo_installation_id",
+    "odoo_partner_id",
+    "removed_at",
+    "reason_code",
+    "return_device_to_stock"
+  ],
+  "properties": {
+    "odoo_installation_id": {
+      "type": "integer"
+    },
+    "odoo_partner_id": {
+      "type": "integer"
+    },
+    "elmogps_tenant_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "elmogps_assignment_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "odoo_vehicle_reference_id": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "odoo_stock_lot_id": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "imei": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "removed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reason_code": {
+      "type": "string"
+    },
+    "return_device_to_stock": {
+      "type": "boolean"
+    }
+  }
+}

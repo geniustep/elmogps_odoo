@@ -161,12 +161,18 @@ class ElmogpsContract(models.Model):
             )
 
     def action_suspend(self):
+        builder = self.env["elmogps.integration.payload.builder"]
         for contract in self:
             contract.write(
                 {
                     "status": "suspended",
                     "suspension_date": fields.Date.context_today(contract),
                 }
+            )
+            self.env["elmogps.integration.event"].sudo().create_event(
+                "subscription.changed",
+                contract,
+                builder.build_subscription_payload(contract),
             )
 
     def action_expire(self):

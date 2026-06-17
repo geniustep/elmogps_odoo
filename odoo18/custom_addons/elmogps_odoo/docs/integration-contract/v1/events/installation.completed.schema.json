@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elmogps.local/integration-contract/v1/events/installation.completed.schema.json",
+  "title": "ELMOGPS Event Payload \u2014 installation.completed",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "odoo_installation_id",
+    "odoo_partner_id",
+    "installation_type",
+    "completed_at",
+    "vehicle",
+    "device"
+  ],
+  "properties": {
+    "odoo_installation_id": {
+      "type": "integer"
+    },
+    "odoo_partner_id": {
+      "type": "integer"
+    },
+    "odoo_contract_id": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "elmogps_tenant_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "installation_type": {
+      "type": "string"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "vehicle": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "device": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "sim": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "odoo_technician_user_id": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  }
+}

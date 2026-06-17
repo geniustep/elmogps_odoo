@@ -1,10 +1,14 @@
-import hashlib
-import json
 import uuid
-from datetime import datetime
 
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
+
+from odoo.addons.elmogps_odoo.services.integration_contract import (
+    SUPPORTED_EVENT_TYPES,
+    canonical_json_dumps,
+    payload_hash,
+    validate_envelope,
+)
 
 EVENT_STATUSES = [
     ("pending", "Pending"),
@@ -14,26 +18,6 @@ EVENT_STATUSES = [
     ("dead", "Dead"),
     ("cancelled", "Cancelled"),
 ]
-
-SUPPORTED_EVENT_TYPES = {
-    "customer.activated",
-    "customer.updated",
-    "customer.suspended",
-    "subscription.activated",
-    "subscription.renewed",
-    "subscription.changed",
-    "subscription.expired",
-    "subscription.cancelled",
-    "device.allocated",
-    "device.released",
-    "sim.allocated",
-    "sim.released",
-    "installation.completed",
-    "installation.removed",
-    "maintenance.opened",
-    "maintenance.closed",
-}
-
 
 class ElmogpsIntegrationEvent(models.Model):
     _name = "elmogps.integration.event"
@@ -102,8 +86,11 @@ class ElmogpsIntegrationEvent(models.Model):
             inner_payload=inner_payload,
             event_id=event_uuid,
         )
-        payload_str = json.dumps(envelope, sort_keys=True, separators=(",", ":"))
-        payload_hash = hashlib.sha256(payload_str.encode("utf-8")).hexdigest()
+        validation_errors = validate_envelope(envelope)
+        if validation_errors:
+            raise ValidationError(_("Invalid event envelope: %s") % ", ".join(validation_errors))
+        payload_str = canonical_json_dumps(envelope)
+        body_hash = payload_hash(payload_str)
         return self.create(
             {
                 "event_id": event_uuid,
@@ -113,7 +100,7 @@ class ElmogpsIntegrationEvent(models.Model):
                 "model_name": record._name,
                 "record_id": record.id,
                 "payload": payload_str,
-                "payload_hash": payload_hash,
+                "payload_hash": body_hash,
                 "status": "pending",
             }
         )

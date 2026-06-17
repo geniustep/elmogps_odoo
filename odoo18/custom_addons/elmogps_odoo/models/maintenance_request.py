@@ -48,16 +48,18 @@ class MaintenanceRequest(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
+        builder = self.env["elmogps.integration.payload.builder"]
         for record in records.filtered(lambda r: r.elmogps_customer_id or r.elmogps_device_lot_id):
             self.env["elmogps.integration.event"].sudo().create_event(
                 "maintenance.opened",
                 record,
-                self.env["elmogps.integration.payload.builder"].build_maintenance_payload(record),
+                builder.build_maintenance_opened_payload(record),
             )
         return records
 
     def write(self, vals):
         res = super().write(vals)
+        builder = self.env["elmogps.integration.payload.builder"]
         if vals.get("stage_id") or vals.get("archive"):
             for record in self:
                 if record.archive or (
@@ -66,9 +68,7 @@ class MaintenanceRequest(models.Model):
                     self.env["elmogps.integration.event"].sudo().create_event(
                         "maintenance.closed",
                         record,
-                        self.env["elmogps.integration.payload.builder"].build_maintenance_payload(
-                            record
-                        ),
+                        builder.build_maintenance_closed_payload(record),
                     )
         return res
 
