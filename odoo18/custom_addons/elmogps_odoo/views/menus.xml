@@ -5,7 +5,20 @@
         <field name="name">Active Customers</field>
         <field name="res_model">res.partner</field>
         <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_partner_tree_elmogps"/>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_partner_tree_elmogps')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('base.view_partner_form')})]"/>
         <field name="domain">[('is_elmogps_customer', '=', True), ('elmogps_service_status', '=', 'active')]</field>
+        <field name="context">{'default_is_elmogps_customer': True}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No active ELMOGPS customers yet
+            </p>
+            <p>
+                Create a customer and activate their ELMOGPS service status.
+            </p>
+        </field>
     </record>
 
     <record id="action_elmogps_dashboard_contracts" model="ir.actions.act_window">
@@ -54,8 +67,20 @@
         <field name="name">Customers</field>
         <field name="res_model">res.partner</field>
         <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_partner_tree_elmogps"/>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_partner_tree_elmogps')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('base.view_partner_form')})]"/>
         <field name="domain">[('is_elmogps_customer', '=', True)]</field>
-        <field name="context">{'search_default_elmogps_customers': 1}</field>
+        <field name="context">{'default_is_elmogps_customer': True}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first ELMOGPS customer
+            </p>
+            <p>
+                Manage commercial customers, service status, and vehicle limits.
+            </p>
+        </field>
     </record>
 
     <record id="action_elmogps_gps_devices" model="ir.actions.act_window">

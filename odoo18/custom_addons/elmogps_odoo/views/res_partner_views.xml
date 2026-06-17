@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <record id="view_partner_tree_elmogps" model="ir.ui.view">
+        <field name="name">res.partner.list.elmogps</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="mode">primary</field>
+        <field name="priority">32</field>
+        <field name="arch" type="xml">
+            <list position="attributes">
+                <attribute name="sample">0</attribute>
+                <attribute name="string">ELMOGPS Customers</attribute>
+            </list>
+            <field name="email" position="after">
+                <field name="elmogps_service_status" optional="show"/>
+                <field name="elmogps_vehicle_limit" optional="hide"/>
+                <field name="elmogps_customer_code" optional="hide"/>
+                <field name="is_elmogps_customer" column_invisible="1"/>
+            </field>
+        </field>
+    </record>
+
     <record id="view_partner_form_elmogps" model="ir.ui.view">
         <field name="name">res.partner.form.elmogps</field>
         <field name="model">res.partner</field>
