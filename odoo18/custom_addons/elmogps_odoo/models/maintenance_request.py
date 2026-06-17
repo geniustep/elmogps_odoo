@@ -58,13 +58,20 @@ class MaintenanceRequest(models.Model):
         return records
 
     def write(self, vals):
+        previously_closed = {}
+        if vals.get("stage_id") or vals.get("archive"):
+            for record in self:
+                previously_closed[record.id] = bool(
+                    record.archive or (record.stage_id and record.stage_id.done)
+                )
         res = super().write(vals)
         builder = self.env["elmogps.integration.payload.builder"]
         if vals.get("stage_id") or vals.get("archive"):
             for record in self:
-                if record.archive or (
-                    record.stage_id and record.stage_id.done
-                ):
+                now_closed = bool(
+                    record.archive or (record.stage_id and record.stage_id.done)
+                )
+                if now_closed and not previously_closed.get(record.id):
                     self.env["elmogps.integration.event"].sudo().create_event(
                         "maintenance.closed",
                         record,

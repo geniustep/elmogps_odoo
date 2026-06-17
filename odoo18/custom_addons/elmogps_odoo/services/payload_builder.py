@@ -1,13 +1,25 @@
 from datetime import datetime, timezone
 
 from odoo import models
+from odoo.exceptions import ValidationError
 
-from .integration_contract import CONTRACT_TO_SUBSCRIPTION_STATUS, date_to_iso_datetime
+from .integration_contract import (
+    CONTRACT_TO_SUBSCRIPTION_STATUS,
+    InvalidExternalUuidError,
+    date_to_iso_datetime,
+    optional_external_uuid,
+)
 
 
 class ElmogpsIntegrationPayloadBuilder(models.AbstractModel):
     _name = "elmogps.integration.payload.builder"
     _description = "ELMOGPS Integration Payload Builder"
+
+    def _external_uuid(self, value):
+        try:
+            return optional_external_uuid(value, strict=True)
+        except InvalidExternalUuidError as exc:
+            raise ValidationError(str(exc)) from exc
 
     def _partner_country_code(self, partner):
         return partner.country_id.code if partner.country_id else None
@@ -20,11 +32,12 @@ class ElmogpsIntegrationPayloadBuilder(models.AbstractModel):
 
     def _tenant_id(self, record):
         tenant = getattr(record, "elmogps_tenant_id", None)
-        if tenant:
-            return tenant
+        normalized = optional_external_uuid(tenant)
+        if normalized:
+            return normalized
         partner = getattr(record, "partner_id", None)
-        if partner and partner.elmogps_tenant_id:
-            return partner.elmogps_tenant_id
+        if partner:
+            return optional_external_uuid(partner.elmogps_tenant_id)
         return None
 
     def build_customer_payload(self, partner, *, status=None, reason_code=None, effective_at=None):
@@ -39,7 +52,7 @@ class ElmogpsIntegrationPayloadBuilder(models.AbstractModel):
             "country_code": self._partner_country_code(partner),
             "timezone": self._partner_timezone(partner),
             "language": self._partner_language(partner),
-            "elmogps_tenant_id": partner.elmogps_tenant_id or None,
+            "elmogps_tenant_id": self._external_uuid(partner.elmogps_tenant_id),
         }
         if reason_code:
             payload["reason_code"] = reason_code
@@ -73,10 +86,11 @@ class ElmogpsIntegrationPayloadBuilder(models.AbstractModel):
 
             grace_date = contract.end_date + timedelta(days=contract.grace_days)
             grace_ends = date_to_iso_datetime(grace_date)
+        tenant = contract.elmogps_tenant_id or self._tenant_id(contract.partner_id)
         return {
             "odoo_contract_id": contract.id,
             "odoo_partner_id": contract.partner_id.id,
-            "elmogps_tenant_id": contract.elmogps_tenant_id or self._tenant_id(contract.partner_id),
+            "elmogps_tenant_id": self._external_uuid(tenant),
             "status": status,
             "vehicle_limit": contract.vehicle_limit,
             "enabled_features": [],
@@ -94,7 +108,9 @@ class ElmogpsIntegrationPayloadBuilder(models.AbstractModel):
             "odoo_stock_lot_id": lot.id,
             "odoo_partner_id": lot.elmogps_customer_id.id if lot.elmogps_customer_id else None,
             "odoo_contract_id": contract.id if contract else None,
-            "elmogps_tenant_id": self._tenant_id(lot.elmogps_customer_id) if lot.elmogps_customer_id else None,
+            "elmogps_tenant_id": self._tenant_id(lot.elmogps_customer_id)
+            if lot.elmogps_customer_id
+            else None,
             "imei": lot.elmogps_imei or None,
             "serial_number": lot.name,
             "device_model": lot.elmogps_device_model or None,
@@ -106,7 +122,7 @@ class ElmogpsIntegrationPayloadBuilder(models.AbstractModel):
     def build_device_released_payload(self, lot, reason_code="removed"):
         return {
             "odoo_stock_lot_id": lot.id,
-            "elmogps_device_id": lot.elmogps_device_id or None,
+            "elmogps_device_id": self._external_uuid(lot.elmogps_device_id),
             "imei": lot.elmogps_imei or None,
             "released_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "reason_code": reason_code,
@@ -116,7 +132,9 @@ class ElmogpsIntegrationPayloadBuilder(models.AbstractModel):
         return {
             "odoo_sim_lot_id": lot.id,
             "odoo_partner_id": lot.elmogps_customer_id.id if lot.elmogps_customer_id else None,
-            "elmogps_tenant_id": self._tenant_id(lot.elmogps_customer_id) if lot.elmogps_customer_id else None,
+            "elmogps_tenant_id": self._tenant_id(lot.elmogps_customer_id)
+            if lot.elmogps_customer_id
+            else None,
             "iccid": lot.elmogps_iccid or None,
             "phone_number": lot.elmogps_phone_number or None,
             "operator_code": lot.elmogps_operator or None,
@@ -149,12 +167,14 @@ class ElmogpsIntegrationPayloadBuilder(models.AbstractModel):
             return None
         return {
             "odoo_vehicle_reference_id": vehicle.id,
-            "elmogps_vehicle_id": vehicle.elmogps_vehicle_id or None,
+            "elmogps_vehicle_id": self._external_uuid(vehicle.elmogps_vehicle_id),
             "plate_number": vehicle.plate_number,
             "vin": vehicle.vin or None,
             "brand": vehicle.brand or None,
             "model": vehicle.model or None,
-            "model_year": int(vehicle.model_year) if vehicle.model_year and str(vehicle.model_year).isdigit() else None,
+            "model_year": int(vehicle.model_year)
+            if vehicle.model_year and str(vehicle.model_year).isdigit()
+            else None,
             "vehicle_type": vehicle.vehicle_type or None,
         }
 
@@ -163,7 +183,7 @@ class ElmogpsIntegrationPayloadBuilder(models.AbstractModel):
             return None
         return {
             "odoo_stock_lot_id": lot.id,
-            "elmogps_device_id": lot.elmogps_device_id or None,
+            "elmogps_device_id": self._external_uuid(lot.elmogps_device_id),
             "imei": lot.elmogps_imei or None,
             "device_model": lot.elmogps_device_model or None,
             "traccar_device_id": lot.elmogps_traccar_device_id or None,
@@ -204,7 +224,7 @@ class ElmogpsIntegrationPayloadBuilder(models.AbstractModel):
             "odoo_installation_id": installation.id,
             "odoo_partner_id": installation.partner_id.id,
             "elmogps_tenant_id": self._tenant_id(installation.partner_id),
-            "elmogps_assignment_id": None,
+            "elmogps_assignment_id": self._external_uuid(installation.elmogps_assignment_id),
             "odoo_vehicle_reference_id": installation.vehicle_id.id if installation.vehicle_id else None,
             "odoo_stock_lot_id": installation.gps_lot_id.id if installation.gps_lot_id else None,
             "imei": installation.gps_lot_id.elmogps_imei if installation.gps_lot_id else None,
@@ -225,6 +245,7 @@ class ElmogpsIntegrationPayloadBuilder(models.AbstractModel):
         return self.build_installation_completed_payload(installation)
 
     def build_maintenance_opened_payload(self, maintenance):
+        device_lot = maintenance.elmogps_device_lot_id
         return {
             "odoo_maintenance_id": maintenance.id,
             "odoo_partner_id": maintenance.elmogps_customer_id.id
@@ -233,17 +254,13 @@ class ElmogpsIntegrationPayloadBuilder(models.AbstractModel):
             "odoo_installation_id": maintenance.elmogps_installation_id.id
             if maintenance.elmogps_installation_id
             else None,
-            "odoo_stock_lot_id": maintenance.elmogps_device_lot_id.id
-            if maintenance.elmogps_device_lot_id
-            else None,
+            "odoo_stock_lot_id": device_lot.id if device_lot else None,
             "elmogps_tenant_id": self._tenant_id(maintenance.elmogps_customer_id)
             if maintenance.elmogps_customer_id
             else None,
-            "elmogps_device_id": (
-                maintenance.elmogps_device_lot_id.elmogps_device_id
-                if maintenance.elmogps_device_lot_id
-                else None
-            ),
+            "elmogps_device_id": self._external_uuid(device_lot.elmogps_device_id)
+            if device_lot
+            else None,
             "issue_type": maintenance.elmogps_issue_type,
             "opened_at": maintenance.create_date.strftime("%Y-%m-%dT%H:%M:%SZ")
             if maintenance.create_date
@@ -252,16 +269,13 @@ class ElmogpsIntegrationPayloadBuilder(models.AbstractModel):
         }
 
     def build_maintenance_closed_payload(self, maintenance, resolution_code="other"):
+        device_lot = maintenance.elmogps_device_lot_id
         return {
             "odoo_maintenance_id": maintenance.id,
-            "odoo_stock_lot_id": maintenance.elmogps_device_lot_id.id
-            if maintenance.elmogps_device_lot_id
+            "odoo_stock_lot_id": device_lot.id if device_lot else None,
+            "elmogps_device_id": self._external_uuid(device_lot.elmogps_device_id)
+            if device_lot
             else None,
-            "elmogps_device_id": (
-                maintenance.elmogps_device_lot_id.elmogps_device_id
-                if maintenance.elmogps_device_lot_id
-                else None
-            ),
             "status": "closed",
             "resolution_code": resolution_code,
             "closed_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),

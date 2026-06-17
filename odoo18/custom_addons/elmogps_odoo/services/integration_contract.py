@@ -51,6 +51,29 @@ SECRET_KEY_PATTERN = re.compile(
     r"(password|secret|token|authorization|pin|puk)", re.IGNORECASE
 )
 
+UUID_PATTERN = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+    re.IGNORECASE,
+)
+
+
+class InvalidExternalUuidError(ValueError):
+    """Raised when a non-empty value is not a valid external UUID."""
+
+
+def optional_external_uuid(value, *, strict=False):
+    """Normalize optional ELMOGPS external UUID references for JSON payloads."""
+    if value is None or value is False:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    if not UUID_PATTERN.match(text):
+        if strict:
+            raise InvalidExternalUuidError("Invalid external UUID reference.")
+        return None
+    return text
+
 SUBSCRIPTION_OPERATIONAL_STATUSES = frozenset(
     {"trial", "active", "suspended", "expired", "cancelled"}
 )
