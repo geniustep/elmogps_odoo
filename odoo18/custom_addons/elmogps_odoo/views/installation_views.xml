@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_elmogps_installation_tree" model="ir.ui.view">
+        <field name="name">elmogps.installation.tree</field>
+        <field name="model">elmogps.installation</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="status == 'cancelled'" decoration-success="status == 'completed'"
+                  decoration-warning="status in ('scheduled', 'in_progress')">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="vehicle_id"/>
+                <field name="gps_lot_id"/>
+                <field name="technician_id"/>
+                <field name="scheduled_at"/>
+                <field name="status"/>
+                <field name="installation_type"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_elmogps_installation_form" model="ir.ui.view">
+        <field name="name">elmogps.installation.form</field>
+        <field name="model">elmogps.installation</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_schedule" type="object" string="Schedule"
+                            invisible="status != 'draft'"/>
+                    <button name="action_start" type="object" string="Start"
+                            invisible="status not in ('draft', 'scheduled')"/>
+                    <button name="action_open_complete_wizard" type="object" string="Complete" class="btn-primary"
+                            invisible="status not in ('scheduled', 'in_progress')"/>
+                    <button name="action_open_remove_wizard" type="object" string="Remove Device"
+                            invisible="status != 'completed'"/>
+                    <button name="action_transfer_device" type="object" string="Transfer"
+                            invisible="status != 'completed'"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="status in ('completed', 'removed', 'cancelled')"/>
+                    <field name="status" widget="statusbar" statusbar_visible="draft,scheduled,in_progress,completed,removed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="contract_id"/>
+                            <field name="sale_order_id"/>
+                            <field name="vehicle_id"/>
+                            <field name="installation_type"/>
+                            <field name="skip_contract_check"/>
+                        </group>
+                        <group>
+                            <field name="gps_lot_id"/>
+                            <field name="sim_lot_id"/>
+                            <field name="requires_sim" invisible="1"/>
+                            <field name="technician_id"/>
+                            <field name="scheduled_at"/>
+                            <field name="started_at"/>
+                            <field name="completed_at"/>
+                            <field name="removed_at"/>
+                            <field name="installation_location"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="sync_status"/>
+                            <field name="elmogps_installation_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_elmogps_installation_search" model="ir.ui.view">
+        <field name="name">elmogps.installation.search</field>
+        <field name="model">elmogps.installation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="vehicle_id"/>
+                <field name="gps_lot_id"/>
+                <filter string="Scheduled" name="scheduled" domain="[('status', '=', 'scheduled')]"/>
+                <filter string="Completed" name="completed" domain="[('status', '=', 'completed')]"/>
+                <filter string="Overdue" name="overdue"
+                        domain="[('status', '=', 'scheduled'), ('scheduled_at', '&lt;', context_today().strftime('%Y-%m-%d 00:00:00'))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                    <filter string="Technician" name="group_technician" context="{'group_by': 'technician_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_elmogps_installation" model="ir.actions.act_window">
+        <field name="name">Installations</field>
+        <field name="res_model">elmogps.installation</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Wizards -->
+    <record id="view_allocate_device_wizard" model="ir.ui.view">
+        <field name="name">elmogps.allocate.device.wizard.form</field>
+        <field name="model">elmogps.allocate.device.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Allocate Device">
+                <group>
+                    <field name="lot_id" readonly="1"/>
+                    <field name="partner_id"/>
+                    <field name="contract_id"/>
+                </group>
+                <footer>
+                    <button name="action_allocate" type="object" string="Allocate" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_complete_installation_wizard" model="ir.ui.view">
+        <field name="name">elmogps.complete.installation.wizard.form</field>
+        <field name="model">elmogps.complete.installation.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Complete Installation">
+                <group>
+                    <field name="installation_id" readonly="1"/>
+                    <field name="confirm"/>
+                </group>
+                <footer>
+                    <button name="action_confirm_complete" type="object" string="Complete" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_remove_device_wizard" model="ir.ui.view">
+        <field name="name">elmogps.remove.device.wizard.form</field>
+        <field name="model">elmogps.remove.device.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Remove Device">
+                <group>
+                    <field name="installation_id" readonly="1"/>
+                    <field name="return_to_stock"/>
+                    <field name="notes"/>
+                </group>
+                <footer>
+                    <button name="action_confirm_remove" type="object" string="Remove" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_stock_lot_form_elmogps" model="ir.ui.view">
+        <field name="name">stock.lot.form.elmogps</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.view_production_lot_form"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button name="action_allocate_device" type="object" class="oe_stat_button" icon="fa-share"
+                        invisible="elmogps_asset_type not in ('gps_device', 'sim_card') or elmogps_operational_status not in ('in_stock', 'returned')">
+                    <div class="o_stat_info"><span class="o_stat_text">Allocate</span></div>
+                </button>
+                <button name="action_return_to_stock" type="object" class="oe_stat_button" icon="fa-undo"
+                        invisible="elmogps_operational_status in ('in_stock', 'retired')">
+                    <div class="o_stat_info"><span class="o_stat_text">Return</span></div>
+                </button>
+            </div>
+            <sheet position="inside">
+                <group string="ELMOGPS" invisible="not elmogps_asset_type">
+                    <group>
+                        <field name="elmogps_asset_type"/>
+                        <field name="elmogps_operational_status"/>
+                        <field name="elmogps_customer_id"/>
+                        <field name="elmogps_device_model"/>
+                    </group>
+                    <group>
+                        <field name="elmogps_imei" invisible="elmogps_asset_type != 'gps_device'"/>
+                        <field name="elmogps_iccid" invisible="elmogps_asset_type != 'sim_card'"/>
+                        <field name="elmogps_phone_number" invisible="elmogps_asset_type != 'sim_card'"/>
+                        <field name="elmogps_operator" invisible="elmogps_asset_type != 'sim_card'"/>
+                        <field name="elmogps_apn" invisible="elmogps_asset_type != 'sim_card'"/>
+                        <field name="elmogps_firmware_version"/>
+                        <field name="elmogps_traccar_device_id"/>
+                        <field name="elmogps_device_id"/>
+                        <field name="elmogps_active_gps_lot_id" invisible="elmogps_asset_type != 'sim_card'"/>
+                    </group>
+                    <group>
+                        <field name="elmogps_warranty_start"/>
+                        <field name="elmogps_warranty_end"/>
+                        <field name="elmogps_last_sync_at"/>
+                        <field name="elmogps_active_installation_id"/>
+                    </group>
+                </group>
+            </sheet>
+        </field>
+    </record>
+
+    <record id="view_stock_lot_tree_elmogps" model="ir.ui.view">
+        <field name="name">stock.lot.tree.elmogps</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.view_production_lot_tree"/>
+        <field name="arch" type="xml">
+            <field name="product_id" position="after">
+                <field name="elmogps_asset_type" optional="show"/>
+                <field name="elmogps_imei" optional="show"/>
+                <field name="elmogps_iccid" optional="hide"/>
+                <field name="elmogps_operational_status" optional="show"
+                       decoration-success="elmogps_operational_status == 'installed'"
+                       decoration-warning="elmogps_operational_status in ('reserved', 'allocated')"
+                       decoration-danger="elmogps_operational_status in ('lost', 'repair')"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_stock_lot_search_elmogps" model="ir.ui.view">
+        <field name="name">stock.lot.search.elmogps</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.search_product_lot_filter"/>
+        <field name="arch" type="xml">
+            <search position="inside">
+                <field name="elmogps_imei"/>
+                <field name="elmogps_iccid"/>
+                <filter string="GPS Devices" name="gps_devices" domain="[('elmogps_asset_type', '=', 'gps_device')]"/>
+                <filter string="SIM Cards" name="sim_cards" domain="[('elmogps_asset_type', '=', 'sim_card')]"/>
+                <filter string="In Stock" name="in_stock" domain="[('elmogps_operational_status', '=', 'in_stock')]"/>
+                <filter string="Installed" name="installed" domain="[('elmogps_operational_status', '=', 'installed')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Asset Type" name="group_asset_type" context="{'group_by': 'elmogps_asset_type'}"/>
+                    <filter string="Operational Status" name="group_status" context="{'group_by': 'elmogps_operational_status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>

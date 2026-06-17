@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="product_gps_device_template" model="product.template">
+        <field name="name">ELMOGPS GPS Device</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="tracking">serial</field>
+        <field name="elmogps_product_type">gps_device</field>
+        <field name="elmogps_device_model">Generic GPS Tracker</field>
+        <field name="elmogps_default_warranty_months">12</field>
+        <field name="elmogps_requires_sim" eval="True"/>
+    </record>
+
+    <record id="product_sim_card_template" model="product.template">
+        <field name="name">ELMOGPS SIM Card</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="tracking">serial</field>
+        <field name="elmogps_product_type">sim_card</field>
+    </record>
+
+    <record id="product_subscription_template" model="product.template">
+        <field name="name">ELMOGPS Monthly Subscription</field>
+        <field name="type">service</field>
+        <field name="elmogps_product_type">subscription_service</field>
+    </record>
+
+    <record id="product_installation_template" model="product.template">
+        <field name="name">ELMOGPS Installation Service</field>
+        <field name="type">service</field>
+        <field name="elmogps_product_type">installation_service</field>
+    </record>
+</odoo>

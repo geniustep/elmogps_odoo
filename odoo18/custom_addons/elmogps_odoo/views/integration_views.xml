@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_elmogps_integration_event_tree" model="ir.ui.view">
+        <field name="name">elmogps.integration.event.tree</field>
+        <field name="model">elmogps.integration.event</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="status in ('failed', 'dead')" decoration-success="status == 'sent'"
+                  decoration-warning="status == 'pending'">
+                <field name="event_id"/>
+                <field name="event_type"/>
+                <field name="status"/>
+                <field name="attempts"/>
+                <field name="next_retry_at"/>
+                <field name="sent_at"/>
+                <field name="created_at"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_elmogps_integration_event_form" model="ir.ui.view">
+        <field name="name">elmogps.integration.event.form</field>
+        <field name="model">elmogps.integration.event</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_retry" type="object" string="Retry"
+                            invisible="status not in ('failed', 'dead')"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="status in ('sent', 'cancelled')"/>
+                    <field name="status" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="event_id"/>
+                            <field name="event_type"/>
+                            <field name="event_version"/>
+                            <field name="model_name"/>
+                            <field name="record_id"/>
+                        </group>
+                        <group>
+                            <field name="attempts"/>
+                            <field name="next_retry_at"/>
+                            <field name="sent_at"/>
+                            <field name="response_status"/>
+                            <field name="payload_hash"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="last_error"/>
+                    </group>
+                    <notebook>
+                        <page string="Payload" groups="elmogps_odoo.group_elmogps_integration_admin">
+                            <field name="payload"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_elmogps_integration_event_search" model="ir.ui.view">
+        <field name="name">elmogps.integration.event.search</field>
+        <field name="model">elmogps.integration.event</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="event_id"/>
+                <field name="event_type"/>
+                <filter string="Pending" name="pending" domain="[('status', '=', 'pending')]"/>
+                <filter string="Failed" name="failed" domain="[('status', 'in', ('failed', 'dead'))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Event Type" name="group_type" context="{'group_by': 'event_type'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_elmogps_integration_log_tree" model="ir.ui.view">
+        <field name="name">elmogps.integration.log.tree</field>
+        <field name="model">elmogps.integration.log</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="create_date"/>
+                <field name="event_id"/>
+                <field name="level"/>
+                <field name="message"/>
+                <field name="response_status"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_elmogps_integration_events" model="ir.actions.act_window">
+        <field name="name">Outbox Events</field>
+        <field name="res_model">elmogps.integration.event</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_pending': 1}</field>
+    </record>
+
+    <record id="action_elmogps_integration_logs" model="ir.actions.act_window">
+        <field name="name">Integration Logs</field>
+        <field name="res_model">elmogps.integration.log</field>
+        <field name="view_mode">list</field>
+    </record>
+</odoo>

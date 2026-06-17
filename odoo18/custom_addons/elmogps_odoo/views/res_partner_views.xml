@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_elmogps" model="ir.ui.view">
+        <field name="name">res.partner.form.elmogps</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button name="action_view_elmogps_contracts" type="object" class="oe_stat_button" icon="fa-file-text-o"
+                        invisible="not is_elmogps_customer">
+                    <field name="elmogps_contract_count" widget="statinfo" string="Contracts"/>
+                </button>
+                <button name="action_view_elmogps_installations" type="object" class="oe_stat_button" icon="fa-wrench"
+                        invisible="not is_elmogps_customer">
+                    <field name="elmogps_installation_count" widget="statinfo" string="Installations"/>
+                </button>
+                <button name="action_view_elmogps_vehicles" type="object" class="oe_stat_button" icon="fa-car"
+                        invisible="not is_elmogps_customer">
+                    <field name="elmogps_vehicle_count" widget="statinfo" string="Vehicles"/>
+                </button>
+                <button name="action_view_elmogps_devices" type="object" class="oe_stat_button" icon="fa-map-marker"
+                        invisible="not is_elmogps_customer">
+                    <field name="elmogps_device_count" widget="statinfo" string="Devices"/>
+                </button>
+            </div>
+            <notebook position="inside">
+                <page string="ELMOGPS" name="elmogps">
+                    <group>
+                        <group>
+                            <field name="is_elmogps_customer"/>
+                            <field name="elmogps_customer_code"/>
+                            <field name="elmogps_tenant_id"/>
+                            <field name="elmogps_service_status"/>
+                        </group>
+                        <group>
+                            <field name="elmogps_activation_date"/>
+                            <field name="elmogps_suspension_date"/>
+                            <field name="elmogps_vehicle_limit"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="elmogps_notes"/>
+                    </group>
+                    <group>
+                        <button name="action_activate_elmogps_customer" type="object" string="Activate"
+                                class="btn-primary" invisible="elmogps_service_status == 'active'"/>
+                        <button name="action_suspend_elmogps_customer" type="object" string="Suspend"
+                                invisible="elmogps_service_status != 'active'"/>
+                    </group>
+                </page>
+            </notebook>
+        </field>
+    </record>
+
+    <record id="view_partner_search_elmogps" model="ir.ui.view">
+        <field name="name">res.partner.search.elmogps</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <filter name="inactive" position="after">
+                <filter string="ELMOGPS Customers" name="elmogps_customers" domain="[('is_elmogps_customer', '=', True)]"/>
+                <filter string="Active ELMOGPS" name="elmogps_active" domain="[('elmogps_service_status', '=', 'active')]"/>
+            </filter>
+        </field>
+    </record>
+</odoo>

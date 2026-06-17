@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_elmogps" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.elmogps</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="ELMOGPS" name="elmogps_odoo" groups="elmogps_odoo.group_elmogps_integration_admin">
+                    <block title="Integration">
+                        <setting string="Enable Integration" help="Enable outbound webhook integration to ELMOGPS">
+                            <field name="elmogps_integration_enabled"/>
+                        </setting>
+                        <setting string="Environment">
+                            <field name="elmogps_integration_environment"/>
+                        </setting>
+                        <setting string="API Base URL">
+                            <field name="elmogps_api_base_url" placeholder="https://api.example.com"/>
+                        </setting>
+                        <setting string="Webhook Secret Configured">
+                            <field name="elmogps_webhook_secret_configured" readonly="1"/>
+                        </setting>
+                        <setting string="Webhook Timeout (seconds)">
+                            <field name="elmogps_webhook_timeout"/>
+                        </setting>
+                        <setting string="Max Attempts">
+                            <field name="elmogps_webhook_max_attempts"/>
+                        </setting>
+                        <setting string="Replay Window (seconds)">
+                            <field name="elmogps_webhook_replay_window"/>
+                        </setting>
+                        <setting string="Outbox Batch Size">
+                            <field name="elmogps_outbox_batch_size"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

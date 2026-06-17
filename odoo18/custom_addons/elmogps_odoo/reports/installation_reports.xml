@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_installation_order" model="ir.actions.report">
+        <field name="name">Installation Order</field>
+        <field name="model">elmogps.installation</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">elmogps_odoo.report_installation_order</field>
+        <field name="report_file">elmogps_odoo.report_installation_order</field>
+        <field name="print_report_name">'Installation - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_elmogps_installation"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_installation_order">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Installation Order</h2>
+                        <p><strong>Reference:</strong> <span t-field="doc.name"/></p>
+                        <p><strong>Customer:</strong> <span t-field="doc.partner_id"/></p>
+                        <p><strong>Vehicle:</strong> <span t-field="doc.vehicle_id"/></p>
+                        <p><strong>GPS Device:</strong> <span t-field="doc.gps_lot_id"/></p>
+                        <p><strong>IMEI:</strong> <span t-field="doc.gps_lot_id.elmogps_imei"/></p>
+                        <p><strong>Technician:</strong> <span t-field="doc.technician_id"/></p>
+                        <p><strong>Scheduled:</strong> <span t-field="doc.scheduled_at"/></p>
+                        <p><strong>Status:</strong> <span t-field="doc.status"/></p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

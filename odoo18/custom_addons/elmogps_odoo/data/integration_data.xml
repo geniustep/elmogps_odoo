@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="elmogps_integration_default_params" model="ir.config_parameter">
+        <field name="key">elmogps_odoo.integration_environment</field>
+        <field name="value">disabled</field>
+    </record>
+</odoo>

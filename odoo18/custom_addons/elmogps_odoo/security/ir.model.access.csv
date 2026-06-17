@@ -1,0 +1,15 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_elmogps_contract_user,elmogps.contract.user,model_elmogps_contract,group_elmogps_user,1,0,0,0
+access_elmogps_contract_sales,elmogps.contract.sales,model_elmogps_contract,group_elmogps_sales,1,1,1,0
+access_elmogps_contract_manager,elmogps.contract.manager,model_elmogps_contract,group_elmogps_manager,1,1,1,1
+access_elmogps_vehicle_user,elmogps.vehicle.user,model_elmogps_vehicle_reference,group_elmogps_user,1,0,0,0
+access_elmogps_vehicle_sales,elmogps.vehicle.sales,model_elmogps_vehicle_reference,group_elmogps_sales,1,1,1,0
+access_elmogps_vehicle_manager,elmogps.vehicle.manager,model_elmogps_vehicle_reference,group_elmogps_manager,1,1,1,1
+access_elmogps_installation_user,elmogps.installation.user,model_elmogps_installation,group_elmogps_user,1,0,0,0
+access_elmogps_installation_technician,elmogps.installation.technician,model_elmogps_installation,group_elmogps_technician,1,1,0,0
+access_elmogps_installation_manager,elmogps.installation.manager,model_elmogps_installation,group_elmogps_manager,1,1,1,1
+access_elmogps_event_integration,elmogps.event.integration,model_elmogps_integration_event,group_elmogps_integration_admin,1,1,1,1
+access_elmogps_log_integration,elmogps.log.integration,model_elmogps_integration_log,group_elmogps_integration_admin,1,0,0,0
+access_elmogps_allocate_wizard,elmogps.allocate.wizard,model_elmogps_allocate_device_wizard,group_elmogps_inventory,1,1,1,1
+access_elmogps_complete_wizard,elmogps.complete.wizard,model_elmogps_complete_installation_wizard,group_elmogps_technician,1,1,1,1
+access_elmogps_remove_wizard,elmogps.remove.wizard,model_elmogps_remove_device_wizard,group_elmogps_technician,1,1,1,1

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_maintenance_request_form_elmogps" model="ir.ui.view">
+        <field name="name">maintenance.request.form.elmogps</field>
+        <field name="model">maintenance.request</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_request_view_form"/>
+        <field name="arch" type="xml">
+            <sheet position="inside">
+                <group string="ELMOGPS">
+                    <group>
+                        <field name="elmogps_customer_id"/>
+                        <field name="elmogps_vehicle_id"/>
+                        <field name="elmogps_installation_id"/>
+                    </group>
+                    <group>
+                        <field name="elmogps_device_lot_id"/>
+                        <field name="elmogps_sim_lot_id"/>
+                        <field name="elmogps_issue_type"/>
+                        <field name="elmogps_warranty_case"/>
+                    </group>
+                    <field name="elmogps_resolution"/>
+                </group>
+            </sheet>
+            <header position="inside">
+                <button name="action_send_to_maintenance_stock" type="object" string="Send Device to Maintenance"/>
+            </header>
+        </field>
+    </record>
+
+    <record id="view_maintenance_request_search_elmogps" model="ir.ui.view">
+        <field name="name">maintenance.request.search.elmogps</field>
+        <field name="model">maintenance.request</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_request_view_search"/>
+        <field name="arch" type="xml">
+            <search position="inside">
+                <field name="elmogps_customer_id"/>
+                <field name="elmogps_issue_type"/>
+                <filter string="ELMOGPS Open" name="elmogps_open"
+                        domain="[('archive', '=', False), ('elmogps_customer_id', '!=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_elmogps_maintenance" model="ir.actions.act_window">
+        <field name="name">Maintenance</field>
+        <field name="res_model">maintenance.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('elmogps_customer_id', '!=', False)]</field>
+        <field name="context">{'search_default_elmogps_open': 1}</field>
+    </record>
+</odoo>

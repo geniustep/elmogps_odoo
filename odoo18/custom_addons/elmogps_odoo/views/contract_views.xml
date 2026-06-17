@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_elmogps_contract_tree" model="ir.ui.view">
+        <field name="name">elmogps.contract.tree</field>
+        <field name="model">elmogps.contract</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="status == 'cancelled'" decoration-danger="status == 'expired'"
+                  decoration-success="status == 'active'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="status"/>
+                <field name="vehicle_limit"/>
+                <field name="active_installation_count"/>
+                <field name="recurring_amount"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_elmogps_contract_form" model="ir.ui.view">
+        <field name="name">elmogps.contract.form</field>
+        <field name="model">elmogps.contract</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_confirm" type="object" string="Confirm" class="btn-primary"
+                            invisible="status != 'draft'"/>
+                    <button name="action_activate" type="object" string="Activate" class="btn-primary"
+                            invisible="status not in ('draft', 'confirmed')"/>
+                    <button name="action_suspend" type="object" string="Suspend"
+                            invisible="status != 'active'"/>
+                    <button name="action_renew" type="object" string="Renew"
+                            invisible="status not in ('active', 'expired')"/>
+                    <button name="action_expire" type="object" string="Expire"
+                            invisible="status != 'active'"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="status in ('cancelled', 'expired')"/>
+                    <field name="status" widget="statusbar" statusbar_visible="draft,confirmed,active,suspended,expired,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_installations" type="object" class="oe_stat_button" icon="fa-wrench">
+                            <field name="installation_count" widget="statinfo" string="Installations"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="sale_order_id"/>
+                            <field name="subscription_product_id"/>
+                            <field name="elmogps_tenant_id"/>
+                        </group>
+                        <group>
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                            <field name="billing_period"/>
+                            <field name="vehicle_limit"/>
+                            <field name="allow_vehicle_limit_override"/>
+                            <field name="grace_days"/>
+                            <field name="auto_renew"/>
+                            <field name="next_renewal_date"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="recurring_amount"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="activation_date"/>
+                            <field name="suspension_date"/>
+                            <field name="cancellation_date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_elmogps_contract_search" model="ir.ui.view">
+        <field name="name">elmogps.contract.search</field>
+        <field name="model">elmogps.contract</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <filter string="Active" name="active_contracts" domain="[('status', '=', 'active')]"/>
+                <filter string="Expiring Soon" name="expiring_soon"
+                        domain="[('status', '=', 'active')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                    <filter string="Customer" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_elmogps_contract" model="ir.actions.act_window">
+        <field name="name">Contracts</field>
+        <field name="res_model">elmogps.contract</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>
